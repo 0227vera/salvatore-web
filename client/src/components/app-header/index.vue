@@ -2,10 +2,10 @@
   <div class="index">
     <div class="index-bg"></div>
     <ul class="index-content">
-      <li v-for="(item,index) in nav" :key="item.path + index" @click="login ? active=index : null">
-        <router-link :to="item.path">
-          <img :src="require(`@/assets/img/nav-icon/${item.path.slice(1)}${active === index ? '-active' : ''}.png`)">
-          <span :class="{active:active === index}">{{item.name}}</span>
+      <li v-for="(item,index) in nav" :key="item.path + index" @click="changeTab(index)">
+        <router-link :to="item.path" v-if="(item.path.slice('1') === 'admin' && isAdmin) || item.show">
+          <img :src="require(`@/assets/img/nav-icon/${item.path.slice(1)}${tabIndex === index ? '-active' : ''}.png`)">
+          <span :class="{active:tabIndex === index}">{{item.name}}</span>
         </router-link>
       </li>
     </ul>
@@ -19,18 +19,19 @@ export default {
   data () {
     return {
       nav: [
-        { name: '首页', path: '/home' },
-        { name: '数据统计', path: '/chars' },
-        { name: '内容页面', path: '/content' },
-        { name: '管理员', path: '/admin' },
-        { name: '登陆/注册', path: '/login' }
-      ],
-      active: this.login ? 0 : 4
+        { name: '首页', path: '/home', show: true },
+        { name: '数据统计', path: '/chars', show: true },
+        { name: '内容页面', path: '/content', show: true },
+        { name: '管理员', path: '/admin', show: false },
+        { name: '登陆/注册', path: '/login', show: true }
+      ]
     }
   },
   computed: {
     ...mapState({
-      login: state => state.login
+      tabIndex: state => state.tabIndex,
+      isLogin: state => state.isLogin,
+      isAdmin: state => state.isAdmin
     })
   },
   watch: {
@@ -38,7 +39,9 @@ export default {
   mounted () {
   },
   methods: {
-
+    changeTab (index) {
+      this.isLogin && this.$store.commit('CHANGE-TAB-INDEX', index)
+    }
   },
   components: {
 
@@ -65,7 +68,6 @@ export default {
       &:hover{
         background: rgb(217, 236, 255);
         border-radius: 5px;
-
       }
       a{
         color: #666;

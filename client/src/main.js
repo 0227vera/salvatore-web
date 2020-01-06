@@ -22,15 +22,19 @@ Vue.use(ElementUI)
 router.beforeEach((to, from, next) => {
   // 先登陆或者注册才能够看见其他页面
   if (isLogin('webUserId')) { // 已经登陆
-    store.commit('IS-LOGIN', 2)
+    store.commit('IS-LOGIN', true)
     next()
   } else { // 未登陆
     // 进入的是登陆页面或者首页的展示直接跳
     if (to.path === '/login' || to.path === '/home') {
-      store.commit('IS-LOGIN', 1)
+      if (to.path === '/login') {
+        store.commit('CHANGE-TAB-INDEX', 4)
+      } else {
+        store.commit('CHANGE-TAB-INDEX', 0)
+      }
       next()
     } else { // 不是的话跳到登陆页面
-      store.commit('IS-LOGIN', 0)
+      store.commit('CHANGE-TAB-INDEX', 4)
       next({ name: 'login' })
     }
   }

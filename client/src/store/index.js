@@ -5,11 +5,19 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    login: 0 // 0 --> 未登录 1 --> 可以跳转的情况 2 --> 已经登陆可以跳转
+    tabIndex: 0,
+    isLogin: false,
+    isAdmin: false
   },
   mutations: {
+    'CHANGE-TAB-INDEX': (state, data) => {
+      state.tabIndex = data
+    },
     'IS-LOGIN': (state, data) => {
-      state.login = data
+      state.isLogin = data
+    },
+    'IS-ADMIN': (state, data) => {
+      state.isAdmin = data
     }
   },
   actions: {

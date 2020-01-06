@@ -137,10 +137,12 @@ export default {
           }
           services.user(data)
             .then(res => {
-              console.log(res.data)
               if (res.data.type) { // 管理员
+                this.$store.commit('CHANGE-TAB-INDEX', 3)
+                this.$store.commit('IS-ADMIN', true)
                 this.$router.replace({ name: 'admin' })
               } else {
+                this.$store.commit('CHANGE-TAB-INDEX', 0)
                 this.$router.replace({ name: 'home' })
               }
             })

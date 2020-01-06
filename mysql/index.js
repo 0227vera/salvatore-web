@@ -8,11 +8,13 @@ let db = mysql.createPool({ // 连接
   database:'web'
 });
 module.exports = (DML,cb) => {
-  db.query(DML, (err, data) => {
-    if (err) {
-      cb && cb ({success:false, data:err})
-    } else {
-      cb && cb ({success:true,data:JSON.parse(JSON.stringify(data))})
-    }
+  return new Promise ((resolve,reject) => {
+    db.query(DML, (err, data) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(JSON.parse(JSON.stringify(data)))
+      }
+    });
   });
 }
