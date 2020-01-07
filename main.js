@@ -11,12 +11,17 @@ module.exports = server => {
       mysql(`SELECT id,type FROM USER WHERE (user = '${post.user}' OR phone = '${post.user}') and pass='${post.pass}';`)
       .then(data => {
         if (data.length) {
-          res.cookie('webUserId', data[0].id,{
+          res.cookie('webUserId', data[0].id, {
             path:'/',
             maxAge: 60 * 60 * 1000, // ms为单位
             signed: true // 添加签名
           })
-          res.send({success:true, data:data[0] })
+          // 把身份写进去
+          res.cookie('isType', md5.md5(+data[0].type), {
+            path:'/',
+            maxAge: 60 * 60 * 1000 // ms为单位
+          })
+          res.send({success:true, data:data[0]})
         } else {
           res.send({success:false,msg:'用户名密码不匹配'})
         }
@@ -41,6 +46,10 @@ module.exports = server => {
               maxAge: 60 * 60 * 1000, // ms为单位
               signed: true // 添加签名
             })
+            res.cookie('isType', md5.md5(0), {
+              path:'/',
+              maxAge: 60 * 60 * 1000 // ms为单位
+            })
             res.send({ success:true, data:{ type:0,id } })
             res.end()
           })
@@ -54,8 +63,14 @@ module.exports = server => {
         res.send({success:false,msg:'数据库错误'})
         res.end()
       })
+    } else if (post.type === 'logout') { // 登出
+      res.clearCookie('isType')
+      res.clearCookie('webUserId')
+      res.send({success:true})
+      res.end()
     };
   });
+  // 管理员页面
   server.get('/web/admin',(req,res) => {
     let get = req.query
     let time=''
@@ -68,8 +83,16 @@ module.exports = server => {
     }
     mysql(`SELECT * FROM USER WHERE user like '%${get.user}%' AND phone like '%${get.phone}%' ${time} order by c_time desc LIMIT ${(get.current - 1) * get.size}, ${get.size}`)
     .then(data => {
-      res.send({success:true,data})
-      res.end()
+      mysql(`SELECT COUNT(user) total FROM USER`)
+      .then(count => {
+        res.send({success:true,data,...count[0]})
+        res.end()
+      })
+      .catch(err=>{
+        res.send({success:false,msg:'数据库错误'})
+        res.end()
+      })
+      
     })
     .catch(err => {
       res.send({success:false,msg:'数据库错误'})

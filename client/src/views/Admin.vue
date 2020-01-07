@@ -56,9 +56,9 @@ export default {
         c_time: []
       },
       formArr: [
-        { name: '姓名', id: 'user', type: 'text' },
-        { name: '电话', id: 'phone', type: 'text' },
-        { name: '注册时间', id: 'c_time', type: 'time' }
+        { name: '姓名', id: 'user', type: 'text', placeholder: '可模糊查询姓名' },
+        { name: '电话', id: 'phone', type: 'text', placeholder: '可模糊查询电话' },
+        { name: '注册时间', id: 'c_time', type: 'time', placeholder: '选择注册时间' }
       ],
       pickerOptions: {
         shortcuts: [{
@@ -123,7 +123,7 @@ export default {
           this.loading = false
           res.data = res.data.map(item => ({ ...item, type: item.type ? '管理员' : '普通用户', c_time: format(item.c_time) }))
           this.table.data = res.data
-          console.log(res)
+          this.table.total = res.total
         })
         .catch(err => {
           this.$message.error(err.msg || '获取列表数据出现错误')

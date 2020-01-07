@@ -2,8 +2,8 @@
   <div class="index">
     <div class="index-bg"></div>
     <ul class="index-content">
-      <li v-for="(item,index) in nav" :key="item.path + index" @click="changeTab(index)">
-        <router-link :to="item.path" v-if="(item.path.slice('1') === 'admin' && isAdmin) || item.show">
+      <li v-for="(item,index) in nav" :key="item.path + index" @click="tagClick(index)">
+        <router-link :to="item.path">
           <img :src="require(`@/assets/img/nav-icon/${item.path.slice(1)}${tabIndex === index ? '-active' : ''}.png`)">
           <span :class="{active:tabIndex === index}">{{item.name}}</span>
         </router-link>
@@ -14,24 +14,18 @@
 
 <script>
 import { mapState } from 'vuex'
+import services from '@/services'
 export default {
   name: 'index',
   data () {
     return {
-      nav: [
-        { name: '首页', path: '/home', show: true },
-        { name: '数据统计', path: '/chars', show: true },
-        { name: '内容页面', path: '/content', show: true },
-        { name: '管理员', path: '/admin', show: false },
-        { name: '登陆/注册', path: '/login', show: true }
-      ]
     }
   },
   computed: {
     ...mapState({
+      nav: state => state.nav,
       tabIndex: state => state.tabIndex,
-      isLogin: state => state.isLogin,
-      isAdmin: state => state.isAdmin
+      isLogin: state => state.isLogin
     })
   },
   watch: {
@@ -39,8 +33,17 @@ export default {
   mounted () {
   },
   methods: {
-    changeTab (index) {
-      this.isLogin && this.$store.commit('CHANGE-TAB-INDEX', index)
+    tagClick (index) {
+      if (this.nav.length - 1 === index && this.isLogin) {
+        let data = { type: 'logout' }
+        services.user(data)
+          .then(res => {
+            this.$router.replace({ name: 'home' })
+          })
+          .catch(err => {
+            this.$message.error(err.msg)
+          })
+      }
     }
   },
   components: {
