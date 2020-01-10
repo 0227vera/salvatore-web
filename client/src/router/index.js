@@ -26,6 +26,11 @@ const routes = [
     component: () => import('@/views/Admin.vue')
   },
   {
+    path: '/set',
+    name: 'set',
+    component: () => import('@/views/Set.vue')
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('@/views/login.vue')

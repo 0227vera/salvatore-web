@@ -2,6 +2,8 @@
 const mysql = require('./mysql')
 const md5  = require('./utils/md5')
 const pId  = require('./utils/produ-id')
+const fs = require('fs')
+const path = require('path')
 
 module.exports = server => {
   // 登陆注册
@@ -71,7 +73,7 @@ module.exports = server => {
     };
   });
   // 管理员页面
-  server.get('/web/admin',(req,res) => {
+  server.get('/web/admin', (req,res) => {
     let get = req.query
     let time=''
     console.log(get)
@@ -97,6 +99,29 @@ module.exports = server => {
     .catch(err => {
       res.send({success:false,msg:'数据库错误'})
       res.end()
+    })
+  });
+  // 文件上传
+  server.use('/web/upload', (req,res) => {
+    const length = req.files.length
+    let count = 0;
+    let result = []
+    req.files.forEach(item => {
+      let extname = path.extname(item.originalname)
+      let name = path.resolve(item.path)
+      fs.rename(name,`${name}.${extname}`,(err, data) => {
+        if (err) {
+          res.send({success:false,msg:'文件写入失败'})
+          res.end()
+        } else {
+          count++;
+          result.push(item)
+          if (length === count) {
+            res.send({success:true,data:result})
+            res.end()
+          }
+        }
+      })
     })
   })
 };

@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <div class="login" @keyup.enter="submitForm">
     <div class="login-container">
       <el-card>
         <el-form ref="form" :model="form" :rules="rules" label-width="90px">
@@ -25,8 +25,8 @@
             <span @click="changeType">{{type === 'login' ? '还没有账号，注册一个' : '已有账号，这就去登陆'}}</span>
           </div>
           <el-form-item>
-            <el-button @click="submitForm()" type="primary">{{type === 'login' ? '登陆' : '注册'}}</el-button>
-            <el-button @click="resetForm()">重新填写</el-button>
+            <el-button @click="submitForm" type="primary">{{type === 'login' ? '登陆' : '注册'}}</el-button>
+            <el-button @click="resetForm">重新填写</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -137,13 +137,17 @@ export default {
           }
           services.user(data)
             .then(res => {
+              this.$store.commit('CURRENT-USER-ID', res.data.id)
               if (res.data.type) { // 管理员
+                this.$router.replace({ name: 'admin' })
                 this.$store.commit('CHANGE-TAB-INDEX', 3)
                 this.$store.commit('IS-ADMIN', true)
-                this.$router.replace({ name: 'admin' })
+                this.$store.commit('IS-LOGIN', true)
               } else {
-                this.$store.commit('CHANGE-TAB-INDEX', 0)
                 this.$router.replace({ name: 'home' })
+                this.$store.commit('CHANGE-TAB-INDEX', 0)
+                this.$store.commit('IS-ADMIN', false)
+                this.$store.commit('IS-LOGIN', true)
               }
             })
             .catch(err => {

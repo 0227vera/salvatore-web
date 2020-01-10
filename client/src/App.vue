@@ -17,6 +17,8 @@ export default {
     }
   },
   mounted () {
+    // 调用接口判断一些当前的信息
+    this.$store.dispatch('auth')
   },
   methods: {
 

@@ -39,6 +39,8 @@ export default {
         services.user(data)
           .then(res => {
             this.$router.replace({ name: 'home' })
+            this.$store.commit('IS-ADMIN', false)
+            this.$store.commit('IS-LOGIN', false)
           })
           .catch(err => {
             this.$message.error(err.msg)
