@@ -1,31 +1,30 @@
 <template>
   <div class="Set">
-    <el-form ref="form">
-      <el-form-item label="左侧一文字">
-        <el-input></el-input>
-      </el-form-item>
-      <el-form-item label="左侧一图片">
-        <el-upload
-          class="upload-demo"
-          action="/web/upload"
-          :on-preview="handlePreview"
-          :on-remove="handleRemove"
-          :file-list="fileList"
-          list-type="picture">
-          <el-button size="small" type="primary">点击上传</el-button>
-          <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-        </el-upload>
-      </el-form-item>
-    </el-form>
+    <div class="Set-left">
+      <left-set />
+    </div>
+    <div class="Set-right">
+      <edit-card />
+    </div>
   </div>
 </template>
 
 <script>
+import editCard from '@/components/wantThing/editCard'
+import leftSet from '@/components/leftSet'
 export default {
   name: 'Set',
   data () {
     return {
-      fileList: []
+      form: {
+        left: {
+          text: '',
+          textBg: [],
+          swiper: []
+        },
+        right: {
+        }
+      }
     }
   },
   mounted () {
@@ -39,7 +38,8 @@ export default {
     }
   },
   components: {
-
+    editCard,
+    leftSet
   }
 }
 </script>
@@ -49,5 +49,11 @@ export default {
   width: 1280px;
   height: 100%;
   margin: 0 auto;
+  &-right,&-left{
+    float: left;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+  }
 }
 </style>

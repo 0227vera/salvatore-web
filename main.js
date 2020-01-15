@@ -4,13 +4,14 @@ const md5  = require('./utils/md5')
 const pId  = require('./utils/produ-id')
 const fs = require('fs')
 const path = require('path')
+const dml = require('./mysql/dml')
 
 module.exports = server => {
   // 登陆注册
   server.post('/web/user', (req,res) => {
     let post = req.body
     if (post.type === 'login') { // 登陆
-      mysql(`SELECT id,type FROM USER WHERE (user = '${post.user}' OR phone = '${post.user}') and pass='${post.pass}';`)
+      mysql(dml.login(post))
       .then(data => {
         if (data.length) {
           res.cookie('webUserId', data[0].id, {
@@ -35,13 +36,13 @@ module.exports = server => {
       })
     } else if (post.type === 'reg') { //注册
       let id = pId()
-      mysql(`SELECT id,type FROM USER WHERE user = '${post.user}' OR phone = '${post.phone}';`)
+      mysql(dml.isExistence(post))
       .then(result => {
         if (result.length) {
           res.send({ success:false,msg:'该用户名或者电话已经被注册，请前去登陆' })
           res.end()
         } else {
-          mysql(`INSERT INTO USER(id,user,pass,phone) VALUES ('${id}','${post.user}','${post.pass}','${post.phone}');`)
+          mysql(dml.reg(id,post))
           .then(data => {
             res.cookie('webUserId', id, {
               path:'/',
@@ -75,17 +76,9 @@ module.exports = server => {
   // 管理员页面
   server.get('/web/admin', (req,res) => {
     let get = req.query
-    let time=''
-    console.log(get)
-    if (get.c_time) {
-      let time = get.c_time.split('-')
-      s_time = time[0]
-      e_time = time[1]
-      time += `AND c_time > ${s_time} AND c_time < ${e_time}`
-    }
-    mysql(`SELECT * FROM USER WHERE user like '%${get.user}%' AND phone like '%${get.phone}%' ${time} order by c_time desc LIMIT ${(get.current - 1) * get.size}, ${get.size}`)
+    mysql(dml.getTable(get))
     .then(data => {
-      mysql(`SELECT COUNT(user) total FROM USER`)
+      mysql(dml.getCount())
       .then(count => {
         res.send({success:true,data,...count[0]})
         res.end()
@@ -94,7 +87,6 @@ module.exports = server => {
         res.send({success:false,msg:'数据库错误'})
         res.end()
       })
-      
     })
     .catch(err => {
       res.send({success:false,msg:'数据库错误'})
@@ -109,13 +101,13 @@ module.exports = server => {
     req.files.forEach(item => {
       let extname = path.extname(item.originalname)
       let name = path.resolve(item.path)
-      fs.rename(name,`${name}.${extname}`,(err, data) => {
+      fs.rename(name,`${name}${extname}`,(err, data) => {
         if (err) {
           res.send({success:false,msg:'文件写入失败'})
           res.end()
         } else {
           count++;
-          result.push(item)
+          result.push({...item, filename:`${item.filename}${extname}`})
           if (length === count) {
             res.send({success:true,data:result})
             res.end()
@@ -124,4 +116,5 @@ module.exports = server => {
       })
     })
   })
+  // 设置里面的信息
 };
